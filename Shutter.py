@@ -17,12 +17,16 @@ def main():
     parser = optparse.OptionParser("Manual Control of the Shutters")
     (options, args) = parser.parse_args()
     living = Shutter((0, 1), (0, 2), (0, 3), (0, 4))
+    stairs = Shutter((1, 1), (1, 2), (1, 3), (1, 4))
     if 'close' in args:
         living.close()
+        stairs.close()
     elif 'open' in args:
         living.open()
+        stairs.open()
     elif 'stop' in args:
         living.stop()
+        stairs.stop()
 
 if __name__ == '__main__':
     main()
