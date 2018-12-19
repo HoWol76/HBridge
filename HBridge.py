@@ -39,5 +39,3 @@ class HBridge:
     def __relayON(self, channel):
         self.__relayOFF(self.nevertogether[channel])
         RELAY.relayON(channel[0], channel[1])
-
-    

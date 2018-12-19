@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 from HBridge import HBridge
 
@@ -21,7 +21,7 @@ def main():
     if 'close' in args:
         living.close()
     elif 'open' in args:
-        living.close()
+        living.open()
     elif 'stop' in args:
         living.stop()
 
