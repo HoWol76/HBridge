@@ -17,7 +17,6 @@ def main():
     parser = optparse.OptionParser("Manual Control of the Shutters")
     (options, args) = parser.parse_args()
     living = Shutter((0, 1), (0, 2), (0, 3), (0, 4))
-    print(args)
     if 'close' in args:
         living.close()
     elif 'open' in args:
