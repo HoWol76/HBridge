@@ -1,4 +1,4 @@
-import HBridge
+from HBridge import HBridge
 
 class Shutter:
     def __init__(self, forward_in, forward_out, reverse_in, reverse_out):
