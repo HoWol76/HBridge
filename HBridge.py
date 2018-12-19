@@ -33,8 +33,8 @@ class HBridge():
         self.__relayOFF(self.reverse_in)
         self.__relayON(self.forward_out)
         self.__relayON(self.reverse_out)
-    def __relayOFF(self, channel)
+    def __relayOFF(self, channel):
         RELAY.relayOFF(channel[0], channel[1])
-    def __relayON(self, channel)
+    def __relayON(self, channel):
         self.__relayOFF(self.nevertogether[channel])
         RELAY.relayON(channel[0], channel[1])
