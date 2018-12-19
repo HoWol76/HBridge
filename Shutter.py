@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from HBridge import HBridge
 
 class Shutter:
