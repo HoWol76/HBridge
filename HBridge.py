@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import piplates.RELAYplate as RELAY
 
 class HBridge:
@@ -37,3 +39,13 @@ class HBridge:
     def __relayON(self, channel):
         self.__relayOFF(self.nevertogether[channel])
         RELAY.relayON(channel[0], channel[1])
+
+def main():
+    import optparse
+    parser = optparse.OptionParser("Manual Control of the Shutters")
+    (options, args) = parser.parse_args()
+    living = Shutter((0, 1), (0, 2), (0, 3), (0, 4))
+    print(args)
+
+if __name__ == '__main__':
+    main()
