@@ -12,7 +12,6 @@ class HBridge:
             self.forward_out : self.reverse_in,
             self.reverse_in : self.forward_out
         }
-        self.off()
     def forward(self):
         self.__relayOFF(self.reverse_in)
         self.__relayOFF(self.reverse_out)
