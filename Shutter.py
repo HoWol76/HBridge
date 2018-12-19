@@ -1,6 +1,6 @@
 import HBridge
 
-class Shutter():
+class Shutter:
     def __init__(self, forward_in, forward_out, reverse_in, reverse_out):
         self.hbridge = HBridge(forward_in, forward_out, reverse_in, reverse_out)
     def close(self):
