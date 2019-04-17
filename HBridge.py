@@ -3,6 +3,9 @@
 import piplates.RELAYplate as RELAY
 
 class HBridge:
+    """
+    Creates an H-Bridge.
+    """
     def __init__(self, forward_in, forward_out, reverse_in, reverse_out):
         self.forward_in = forward_in
         self.forward_out = forward_out
