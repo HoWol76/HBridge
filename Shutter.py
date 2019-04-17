@@ -3,6 +3,10 @@
 from HBridge import HBridge
 
 class Shutter:
+    """
+    Configures an H-Bridge specifically for the roller shutter.
+    Hides the H-Bridges brake configuration, we don't need it.
+    """
     def __init__(self, forward_in, forward_out, reverse_in, reverse_out):
         self.hbridge = HBridge(forward_in, forward_out, reverse_in, reverse_out)
     def close(self):
