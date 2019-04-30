@@ -44,3 +44,4 @@ class HBridge:
         RELAY.relayON(channel[0], channel[1])
 
 # Dummy comment to test something on github
+# Another dummy comment
