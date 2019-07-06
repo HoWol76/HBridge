@@ -22,17 +22,23 @@ def main():
     (options, args) = parser.parse_args()
     living = Shutter((0, 1), (0, 2), (0, 3), (0, 4))
     stairs = Shutter((1, 1), (1, 2), (1, 3), (1, 4))
-    master = Shutter((2, 1), (2, 2), (2, 3), (2, 4))
-    sarah = Shutter((0, 5), (1, 5), (2, 5), (0, 6))
+    master = Shutter((3, 1), (3, 2), (3, 3), (3, 4))
+    sarah = Shutter((0, 5), (1, 5), (3, 5), (0, 6))
     if 'close' in args:
         living.close()
         stairs.close()
+        master.close()
+        sarah.close()
     elif 'open' in args:
         living.open()
         stairs.open()
+        master.open()
+        sarah.open()
     elif 'stop' in args:
         living.stop()
         stairs.stop()
+        master.stop()
+        sarah.stop()
 
 if __name__ == '__main__':
     main()
