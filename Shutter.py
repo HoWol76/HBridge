@@ -22,6 +22,8 @@ def main():
     (options, args) = parser.parse_args()
     living = Shutter((0, 1), (0, 2), (0, 3), (0, 4))
     stairs = Shutter((1, 1), (1, 2), (1, 3), (1, 4))
+    master = Shutter((2, 1), (2, 2), (2, 3), (2, 4))
+    sarah = Shutter((0, 5), (1, 5), (2, 5), (0, 6))
     if 'close' in args:
         living.close()
         stairs.close()
