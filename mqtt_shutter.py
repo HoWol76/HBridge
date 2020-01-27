@@ -72,6 +72,12 @@ def on_message(client, userdata, message):
 
 
 class Mqtt_Shutter():
+    shutters = {
+        'living' : Shutter('living', (0, 1), (0, 2), (0, 3), (0, 4), client, 14),
+        'stairs' : Shutter('stairs', (1, 1), (1, 2), (1, 3), (1, 4), client, 12),
+        'master' : Shutter('master', (3, 1), (3, 2), (3, 3), (3, 4), client, 12),
+        'sarah'  : Shutter('sarah', (0, 5), (1, 5), (3, 5), (0, 6), client, 12)
+        }
 
     def __init__(self):
         self.client = mqtt.Client(
@@ -82,35 +88,42 @@ class Mqtt_Shutter():
             },
             protocol = mqtt.MQTTv311
         )
+        self.client.will_set('home/shutter/status', 'CONNECTION LOST', 1, True)
+        self.client.on_message=self.on_message
+        self.client.on_connect=self.on_connect
+        self.client.on_disconnect=self.on_disconnect
 
-        self.shutters = {
-            'living' : Shutter('living', (0, 1), (0, 2), (0, 3), (0, 4), client, 14),
-            'stairs' : Shutter('stairs', (1, 1), (1, 2), (1, 3), (1, 4), client, 12),
-            'master' : Shutter('master', (3, 1), (3, 2), (3, 3), (3, 4), client, 12),
-            'sarah'  : Shutter('sarah', (0, 5), (1, 5), (3, 5), (0, 6), client, 12)
-            }
+        connected = False
+        while not connected:
+            connected = (client.connect('192.168.1.105') == 0)
+            time.sleep(1)
 
-        def on_connect(self, client, userdata, flags, rc):
-            if (rc == 0):
-                client.publish('home/shutter/status', 'ONLINE', 2, True)
 
-        def on_disconnect(self, client, userdata, rc):
-            client.publish('home/shutter/status', 'OFFLINE', 2, True)
+    def on_connect(self, client, userdata, flags, rc):
+        if (rc == 0):
+            client.publish('home/shutter/status', 'ONLINE', 2, True)
 
-        def on_message(self, client, userdata, message):
-            if (not message.payload): return
-            client.publish(message.topic, None, retain = True, qos = 2)
+    def on_disconnect(self, client, userdata, rc):
+        client.publish('home/shutter/status', 'OFFLINE', 2, True)
 
-            shutter_name = message.topic.split('/')[2]
-            action = str(message.payload.decode('utf-8'))
-            if (action == "OPEN"):
-                self.shutters[shutter_name].open()
-            elif (action == "CLOSE"):
-                self.shutters[shutter_name].close()
-            elif (action == "STOP"):
-                self.shutters[shutter_name].stop()
-            elif (action == "HALF"):
-                self.shutters[shutter_name].half()
+    def on_message(self, client, userdata, message):
+        if (not message.payload): return
+        client.publish(message.topic, None, retain = True, qos = 2)
 
-        def mainloop(self):
-            self.client.loop_forever()
+        shutter_name = message.topic.split('/')[2]
+        action = str(message.payload.decode('utf-8'))
+        if (action == "OPEN"):
+            self.shutters[shutter_name].open()
+        elif (action == "CLOSE"):
+            self.shutters[shutter_name].close()
+        elif (action == "STOP"):
+            self.shutters[shutter_name].stop()
+        elif (action == "HALF"):
+            self.shutters[shutter_name].half()
+
+    def mainloop(self):
+        self.client.loop_forever()
+
+def main():
+    app = Mqtt_Shutter()
+    app.mainloop()
