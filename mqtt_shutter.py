@@ -95,7 +95,7 @@ class Mqtt_Shutter():
             }
         connected = False
         while not connected:
-            connected = (client.connect('192.168.1.105') == 0)
+            connected = (self.client.connect('192.168.1.105') == 0)
             time.sleep(1)
 
 
