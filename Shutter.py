@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Script to control roller shutters.
 
 from HBridge import HBridge
 import argparse
