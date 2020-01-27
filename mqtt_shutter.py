@@ -88,10 +88,10 @@ class Mqtt_Shutter():
         self.client.on_connect=self.on_connect
         self.client.on_disconnect=self.on_disconnect
         self.shutters = {
-            'living' : Shutter('living', (0, 1), (0, 2), (0, 3), (0, 4), client, 14),
-            'stairs' : Shutter('stairs', (1, 1), (1, 2), (1, 3), (1, 4), client, 12),
-            'master' : Shutter('master', (3, 1), (3, 2), (3, 3), (3, 4), client, 12),
-            'sarah'  : Shutter('sarah', (1, 6), (1, 5), (3, 5), (3, 6), client, 12)
+            'living' : Shutter('living', (0, 1), (0, 2), (0, 3), (0, 4), self.client, 14),
+            'stairs' : Shutter('stairs', (1, 1), (1, 2), (1, 3), (1, 4), self.client, 12),
+            'master' : Shutter('master', (3, 1), (3, 2), (3, 3), (3, 4), self.client, 12),
+            'sarah'  : Shutter('sarah', (1, 6), (1, 5), (3, 5), (3, 6), self.client, 12)
             }
         connected = False
         while not connected:
