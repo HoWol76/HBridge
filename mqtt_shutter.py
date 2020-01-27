@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 from HBridge import HBridge
 import paho.mqtt.client as mqtt
@@ -20,7 +20,6 @@ class Shutter():
         self.half_duration = half_duration
         self.status_topic = 'home/shutter/{}/status'.format(self.name)
         self.request_topic = 'home/shutter/{}/request'.format(self.name)
-        self.client.subscribe(self.request_topic)
 
     def close(self):
         self.hbridge.forward()
@@ -97,6 +96,7 @@ class Mqtt_Shutter():
         while not connected:
             connected = (self.client.connect('192.168.1.105') == 0)
             time.sleep(1)
+        self.client.subscribe('home/shutter/+/request')
 
 
     def on_connect(self, client, userdata, flags, rc):
@@ -107,6 +107,7 @@ class Mqtt_Shutter():
         client.publish('home/shutter/status', 'OFFLINE', 2, True)
 
     def on_message(self, client, userdata, message):
+
         if (not message.payload): return
         client.publish(message.topic, None, retain = True, qos = 2)
 
