@@ -127,3 +127,6 @@ class Mqtt_Shutter():
 def main():
     app = Mqtt_Shutter()
     app.mainloop()
+
+if __name__ == '__main__':
+    main()
