@@ -76,7 +76,7 @@ class Mqtt_Shutter():
         'living' : Shutter('living', (0, 1), (0, 2), (0, 3), (0, 4), client, 14),
         'stairs' : Shutter('stairs', (1, 1), (1, 2), (1, 3), (1, 4), client, 12),
         'master' : Shutter('master', (3, 1), (3, 2), (3, 3), (3, 4), client, 12),
-        'sarah'  : Shutter('sarah', (0, 5), (1, 5), (3, 5), (0, 6), client, 12)
+        'sarah'  : Shutter('sarah', (1, 6), (1, 5), (3, 5), (3, 6), client, 12)
         }
 
     def __init__(self):
