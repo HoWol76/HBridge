@@ -5,13 +5,17 @@ import paho.mqtt.client as mqtt
 import time
 from enum import Enum, unique
 
-class Shutter():
 
-    @unique
-    class ShutterStatus(Enum):
-        CLOSED = 0
-        OPEN = 1
-        STOPPED = 2
+
+@unique
+class ShutterStatus(Enum):
+    CLOSED = 0
+    OPEN = 1
+    STOPPED = 2
+    UNKNOWN = 3
+
+
+class Shutter():
 
     def __init__(self, name, forward_in, forward_out, reverse_in, reverse_out, mqtt_client, half_duration):
         self.hbridge = HBridge(forward_in, forward_out, reverse_in, reverse_out)
@@ -20,6 +24,7 @@ class Shutter():
         self.half_duration = half_duration
         self.status_topic = 'home/shutter/{}/status'.format(self.name)
         self.request_topic = 'home/shutter/{}/request'.format(self.name)
+        self.status = ShutterStatus.UNKNOWN
 
     def close(self):
         self.hbridge.forward()
@@ -82,15 +87,16 @@ class Mqtt_Shutter():
             },
             protocol = mqtt.MQTTv311
         )
+        self.client.enable_logger()
         self.client.will_set('home/shutter/status', 'CONNECTION LOST', 1, True)
         self.client.on_message=self.on_message
         self.client.on_connect=self.on_connect
         self.client.on_disconnect=self.on_disconnect
         self.shutters = {
-            'living' : Shutter('living', (0, 1), (0, 2), (0, 3), (0, 4), self.client, 14),
-            'stairs' : Shutter('stairs', (1, 1), (1, 2), (1, 3), (1, 4), self.client, 12),
-            'master' : Shutter('master', (3, 1), (3, 2), (3, 3), (3, 4), self.client, 12),
-            'sarah'  : Shutter('sarah', (1, 6), (1, 5), (3, 5), (3, 6), self.client, 12)
+            'living' : Shutter('living', (0, 1), (0, 2), (0, 3), (0, 4), self.client, 11),
+            'stairs' : Shutter('stairs', (1, 1), (1, 2), (1, 3), (1, 4), self.client, 9),
+            'master' : Shutter('master', (3, 1), (3, 2), (3, 3), (3, 4), self.client, 7),
+            'sarah'  : Shutter('sarah', (1, 6), (1, 5), (3, 5), (3, 6), self.client, 7)
             }
         connected = False
         while not connected:
