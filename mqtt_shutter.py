@@ -130,21 +130,31 @@ class Mqtt_Shutter():
     def on_message(self, client, userdata, message):
 
         if (not message.payload): return
-        self.logger.info("Message received: {}".format(
-            message.payload.decode('utf-8'))
-            )
+
         client.publish(message.topic, None, retain = True, qos = 2)
 
-        shutter_name = message.topic.split('/')[2]
-        action = str(message.payload.decode('utf-8'))
-        if (action == "OPEN"):
-            self.shutters[shutter_name].open()
-        elif (action == "CLOSE"):
-            self.shutters[shutter_name].close()
-        elif (action == "STOP"):
-            self.shutters[shutter_name].stop()
-        elif (action == "HALF"):
-            self.shutters[shutter_name].half()
+        topic_list = message.topic.split('/')
+        if topic_list[:2] == ['home', 'shutters'] and topic_list[3] == 'request':
+            shutter_name = message.topic.split('/')[2]
+            action = str(message.payload.decode('utf-8'))
+            self.logger.info("Message received: {} {}".format(
+                    shutter_name, action
+                )
+            )
+            if (action == "OPEN"):
+                self.shutters[shutter_name].open()
+            elif (action == "CLOSE"):
+                self.shutters[shutter_name].close()
+            elif (action == "STOP"):
+                self.shutters[shutter_name].stop()
+            elif (action == "HALF"):
+                self.shutters[shutter_name].half()
+        else:
+            self.logger.warn(
+                "Received message on unknown topic: {}".format(
+                    str(message.topic)
+                )
+            )
 
     def mainloop(self):
         self.logger.info("Entering Loop")
