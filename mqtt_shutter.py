@@ -4,6 +4,8 @@ from HBridge import HBridge
 import paho.mqtt.client as mqtt
 import time
 from enum import Enum, unique
+import logging
+from systemd.journal import JournalHandler
 
 
 
@@ -78,7 +80,7 @@ def on_message(client, userdata, message):
 class Mqtt_Shutter():
 
 
-    def __init__(self):
+    def __init__(self, logger=None):
         self.client = mqtt.Client(
             'rpi-shutter-controller',
             userdata={
@@ -87,7 +89,12 @@ class Mqtt_Shutter():
             },
             protocol = mqtt.MQTTv311
         )
-        self.client.enable_logger()
+        if not logger:
+            logging.basicConfig(level=logging.WARNING)
+            self.logger = logging.getLogger(name='shutter')
+        else:
+            self.logger = logger
+        self.client.enable_logger(logger)
         self.client.will_set('home/shutter/status', 'CONNECTION LOST', 1, True)
         self.client.on_message=self.on_message
         self.client.on_connect=self.on_connect
@@ -100,7 +107,12 @@ class Mqtt_Shutter():
             }
         connected = False
         while not connected:
-            connected = (self.client.connect('192.168.1.105') == 0)
+            try:
+                connected = (self.client.connect('192.168.1.105') == 0)
+            except OSError as e:
+                self.logger.warn("received OSError: {}".format(e.strerror))
+                time.sleep(59)
+
             time.sleep(1)
         self.client.subscribe('home/shutter/+/request')
 
@@ -109,12 +121,18 @@ class Mqtt_Shutter():
         if (rc == 0):
             client.publish('home/shutter/status', 'ONLINE', 2, True)
 
+        self.logger.info("Connection Established")
+
     def on_disconnect(self, client, userdata, rc):
         client.publish('home/shutter/status', 'OFFLINE', 2, True)
+        self.logger.info("Connection Terminated")
 
     def on_message(self, client, userdata, message):
 
         if (not message.payload): return
+        self.logger.info("Message received: {}".format(
+            message.payload.decode('utf-8'))
+            )
         client.publish(message.topic, None, retain = True, qos = 2)
 
         shutter_name = message.topic.split('/')[2]
@@ -129,10 +147,15 @@ class Mqtt_Shutter():
             self.shutters[shutter_name].half()
 
     def mainloop(self):
+        self.logger.info("Entering Loop")
         self.client.loop_forever()
 
 def main():
-    app = Mqtt_Shutter()
+    logger = logging.getLogger('shutter')
+    logger.addHandler(JournalHandler())
+    logger.setLevel(logging.INFO)
+    logger.info("Starting Shutter Controller")
+    app = Mqtt_Shutter(logger=logger)
     app.mainloop()
 
 if __name__ == '__main__':
