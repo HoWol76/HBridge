@@ -135,7 +135,7 @@ class Mqtt_Shutter():
 
         topic_list = message.topic.split('/')
         if topic_list[:2] == ['home', 'shutters'] and topic_list[3] == 'request':
-            shutter_name = message.topic.split('/')[2]
+            shutter_name = topic_list[2]
             action = str(message.payload.decode('utf-8'))
             self.logger.info("Message received: {} {}".format(
                     shutter_name, action
