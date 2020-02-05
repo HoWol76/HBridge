@@ -5,7 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Shutters" x:Name="rollerShutter"
              mc:Ignorable="d" 
+             DataContextChanged="RollerShutter_DataContextChanged"
              d:DesignHeight="800" d:DesignWidth="800">
+    <UserControl.Resources>
+        <local:BooleanToDoubleConverter x:Key="BooleanToDoubleConverter" />
+    </UserControl.Resources>
     <Button Background="Transparent" Click="Button_Click" ContextMenuOpening="Button_ContextMenuOpening">
     <Viewbox>
         <Grid>
@@ -13,13 +17,13 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Image Source="Resources/rollerShutterFrame.png" Height="600"/>
-            <Image Source="Resources/rollerShutterRolling.png" Height="500" x:Name="shutterImage" >
+                <Image Source="Resources/rollerShutterFrame.png" Height="600" Opacity="{Binding IsDisabled, Converter={StaticResource BooleanToDoubleConverter}, ConverterParameter='0,3|1'}"/>
+                <Image Source="Resources/rollerShutterRolling.png" Height="500" x:Name="shutterImage"  Opacity="{Binding IsDisabled, Converter={StaticResource BooleanToDoubleConverter}, ConverterParameter='0.3|1'}">
                 <Image.Clip>
                     <RectangleGeometry x:Name="wau"  Rect="0,120,500,320"/>
                 </Image.Clip>
             </Image>
-            <TextBlock Grid.Row="1" FontSize="100" HorizontalAlignment="Center" Text="{Binding ShutterName, ElementName=rollerShutter}"/>
+            <TextBlock Grid.Row="1" FontSize="100" HorizontalAlignment="Center" Text="{Binding Name}"/>
         </Grid>
     </Viewbox>
     </Button>

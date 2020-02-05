@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,19 +22,6 @@ namespace Shutters
     /// </summary>
     public partial class RollerShutter : UserControl
     {
-        public static readonly DependencyProperty ShutterNameProperty = DependencyProperty.Register(
-          nameof(ShutterName),
-          typeof(string),
-          typeof(RollerShutter)
-        );
-
-        public static readonly DependencyProperty StatusProperty = DependencyProperty.Register(
-          nameof(Status),
-          typeof(ShutterStatus),
-          typeof(RollerShutter),
-          new PropertyMetadata(OnStatusPropertyChanged)
-        );
-
         public RollerShutter()
         {
             InitializeComponent();
@@ -41,36 +29,67 @@ namespace Shutters
             createAnimations();
         }
 
-        public string ShutterName
+        private RollerShutterViewModel Shutter { get => DataContext as RollerShutterViewModel; }
+
+        private void RollerShutter_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            get
+            if (Shutter == null)
             {
-                return (string)GetValue(ShutterNameProperty);
+                return;
             }
-            set
-            {
-                SetValue(ShutterNameProperty, value);
-            }
+            Shutter.PropertyChanging += Shutter_PropertyChanging;
+            Shutter.PropertyChanged += Shutter_PropertyChanged;
         }
 
-        public ShutterStatus Status
+        private ShutterStatus _changingStatus;
+        private void Shutter_PropertyChanging(object sender, PropertyChangingEventArgs e)
         {
-            get
+            _ = Dispatcher.InvokeAsync(() =>
             {
-                return (ShutterStatus)GetValue(StatusProperty);
-            }
-            set
-            {
-                SetValue(StatusProperty, value);
-            }
+                if (Shutter != null && e.PropertyName == nameof(RollerShutterViewModel.Status))
+                {
+                    _changingStatus = Shutter.Status;
+                }
+            });
         }
 
-        private static void OnStatusPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private void Shutter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var control = d as RollerShutter;
-            var oldStatus = (ShutterStatus)e.OldValue;
-            var newStatus = (ShutterStatus)e.NewValue;
-            control.UpdateAnimation(oldStatus, newStatus);
+            _ = Dispatcher.InvokeAsync(() =>
+            {
+                if (Shutter != null)
+                {
+                    if (e.PropertyName == nameof(RollerShutterViewModel.Status))
+                    {
+                        var changedStatus = Shutter.Status;
+                        UpdateAnimation(_changingStatus, changedStatus);
+                    }
+                    if (e.PropertyName == nameof(RollerShutterViewModel.IsDisabled))
+                    {
+                        bool isDisabled = Shutter.IsDisabled;
+                        if (isDisabled)
+                        {
+                            stopStoryBoards();
+                        }
+                    }
+                }
+            });
+        }
+
+        private void stopStoryBoards()
+        {
+            if (isOpenStoryBoardRunning)
+            {
+                openStoryboard.Stop(this);
+                openStoryboard.Remove(this);
+                isOpenStoryBoardRunning = false;
+            }
+            if (isCloseStoryBoardRunning)
+            {
+                closeStoryboard.Stop(this);
+                closeStoryboard.Remove(this);
+                isCloseStoryBoardRunning = false;
+            }
         }
 
         private void UpdateAnimation(ShutterStatus oldStatus, ShutterStatus newStatus)
@@ -79,20 +98,7 @@ namespace Shutters
             {
                 return;
             }
-            switch (oldStatus)
-            {
-                case ShutterStatus.Opening:
-                    openStoryboard.Stop(this);
-                    openStoryboard.Remove(this);
-                    break;
-                case ShutterStatus.Closing:
-                    closeStoryboard.Stop(this);
-                    closeStoryboard.Remove(this);
-                    break;
-                case ShutterStatus.Unknown:
-                    shutterImage.Opacity = 1;
-                    break;
-            }
+            stopStoryBoards();
             switch (newStatus)
             {
                 case ShutterStatus.Open:
@@ -101,14 +107,16 @@ namespace Shutters
                 case ShutterStatus.Closed:
                     shutterClipRectangleGeometry.Rect = new Rect(0, 120, 500, 320);
                     break;
-                case ShutterStatus.Stopped:
+                case ShutterStatus.Half:
                     shutterClipRectangleGeometry.Rect = new Rect(0, 120, 500, 200);
                     break;
                 case ShutterStatus.Opening:
                     openStoryboard.Begin(this, true);
+                    isOpenStoryBoardRunning = true;
                     break;
                 case ShutterStatus.Closing:
                     closeStoryboard.Begin(this, true);
+                    isCloseStoryBoardRunning = true;
                     break;
                 case ShutterStatus.Unknown:
                 default:
@@ -119,9 +127,14 @@ namespace Shutters
 
         Storyboard openStoryboard;
         RectAnimationUsingKeyFrames openAnimation;
+        bool isOpenStoryBoardRunning = false;
+
         Storyboard closeStoryboard;
         RectAnimationUsingKeyFrames closeAnimation;
+        bool isCloseStoryBoardRunning = false;
+
         RectangleGeometry shutterClipRectangleGeometry;
+
         private void createAnimations()
         { 
             // Create a RectangleGeometry to sanimate the clipping rectangle.
@@ -186,23 +199,22 @@ namespace Shutters
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Debugger.Log(1, "", $"{ShutterName} clicked \r\n");
-            var viewModel = DataContext as RollerShuttersViewModel;
-            if (viewModel == null)
+            System.Diagnostics.Debugger.Log(1, "", $"{Shutter?.Name} clicked \r\n");
+            if (Shutter == null)
             {
                 return;
             }
-            switch(Status)
+            switch(Shutter.Status)
             {
                 case ShutterStatus.Opening:
                 case ShutterStatus.Closing:
-                    await viewModel.Stop(ShutterName);
+                    await Shutter.Stop();
                     break;
                 case ShutterStatus.Open:
-                    await viewModel.Close(ShutterName);
+                    await Shutter.Close();
                     break;
                 case ShutterStatus.Closed:
-                    await viewModel.Open(ShutterName);
+                    await Shutter.Open();
                     break;
                 case ShutterStatus.Unknown:
                 default:
@@ -212,16 +224,15 @@ namespace Shutters
 
         private async void Up_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as RollerShuttersViewModel;
-            if (viewModel == null)
+            if (Shutter == null)
             {
                 return;
             }
-            switch (Status)
+            switch (Shutter.Status)
             {
                 case ShutterStatus.Closed:
-                case ShutterStatus.Stopped:
-                    await viewModel.Open(ShutterName);
+                case ShutterStatus.Half:
+                    await Shutter.Open();
                     break;
                 default:
                     return;
@@ -230,16 +241,15 @@ namespace Shutters
 
         private async void Down_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as RollerShuttersViewModel;
-            if (viewModel == null)
+            if (Shutter == null)
             {
                 return;
             }
-            switch (Status)
+            switch (Shutter.Status)
             {
                 case ShutterStatus.Open:
-                case ShutterStatus.Stopped:
-                    await viewModel.Close(ShutterName);
+                case ShutterStatus.Half:
+                    await Shutter.Close();
                     break;
                 default:
                     return;
@@ -248,18 +258,17 @@ namespace Shutters
 
         private async void Half_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as RollerShuttersViewModel;
-            if (viewModel == null)
+            if (Shutter == null)
             {
                 return;
             }
-            switch (Status)
+            switch (Shutter.Status)
             {
                 case ShutterStatus.Open:
-                    await viewModel.Half(ShutterName);
+                    await Shutter.Half();
                     break;
                 case ShutterStatus.Closed:
-                    await viewModel.Half(ShutterName);
+                    await Shutter.Half();
                     break;
                 default:
                     return;
@@ -268,16 +277,15 @@ namespace Shutters
 
         private async void Stop_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as RollerShuttersViewModel;
-            if (viewModel == null)
+            if (Shutter == null)
             {
                 return;
             }
-            switch (Status)
+            switch (Shutter.Status)
             {
                 case ShutterStatus.Opening:
                 case ShutterStatus.Closing:
-                    await viewModel.Stop(ShutterName);
+                    await Shutter.Stop();
                     break;
                 default:
                     return;
@@ -288,7 +296,11 @@ namespace Shutters
         {
             FrameworkElement fe = e.Source as FrameworkElement;
             ContextMenu theMenu = new ContextMenu();
-            switch (Status)
+            if (Shutter == null)
+            {
+                return;
+            }
+            switch (Shutter.Status)
             {
                 case ShutterStatus.Opening:
                 case ShutterStatus.Closing:
@@ -333,7 +345,7 @@ namespace Shutters
                         theMenu.Items.Add(halfItem);
                     }
                     break;
-                case ShutterStatus.Stopped:
+                case ShutterStatus.Half:
                     {
                         var upItem = new MenuItem()
                         {

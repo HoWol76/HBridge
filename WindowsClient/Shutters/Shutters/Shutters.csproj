@@ -81,10 +81,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BooleanToDoubleConverter.cs" />
+    <Compile Include="IMqttPublisher.cs" />
+    <Compile Include="IMqttSubscriber.cs" />
     <Compile Include="RollerShutter.xaml.cs">
       <DependentUpon>RollerShutter.xaml</DependentUpon>
     </Compile>
     <Compile Include="RollerShuttersViewModel.cs" />
+    <Compile Include="RollerShutterViewModel.cs" />
+    <Compile Include="SafeMqttClient.cs" />
     <Compile Include="ShutterStatus.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

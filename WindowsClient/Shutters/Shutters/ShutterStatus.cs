@@ -3,7 +3,7 @@
     Unknown = 0,
     Open,
     Closed,
-    Stopped,
+    Half,
     Opening,
     Closing
 }
