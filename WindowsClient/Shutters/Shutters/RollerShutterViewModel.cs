@@ -88,7 +88,7 @@ namespace Shutters
                 case ShutterStatus.Opening:
                     if (_newStatus == ShutterStatus.Closed)
                     {
-                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Closing}, should become {_newStatus} in {2 * _halfUpDownTimeSeconds} | \r\n");
+                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Closing}, should become {_newStatus} in {2 * _halfUpDownTimeSeconds} s \r\n");
                         Status = ShutterStatus.Closing;
                         _timer.Change((int)Math.Round(TimeSpan.FromSeconds(2 * _halfUpDownTimeSeconds).TotalMilliseconds), Timeout.Infinite);
                     }
@@ -97,7 +97,7 @@ namespace Shutters
                 case ShutterStatus.Closing:
                     if (_newStatus == ShutterStatus.Open)
                     {
-                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Opening}, should become {_newStatus} in {2 * _halfUpDownTimeSeconds} | \r\n");
+                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Opening}, should become {_newStatus} in {2 * _halfUpDownTimeSeconds} s \r\n");
                         Status = ShutterStatus.Opening;
                         _timer.Change((int)Math.Round(TimeSpan.FromSeconds(2 * _halfUpDownTimeSeconds).TotalMilliseconds), Timeout.Infinite);
                     }
@@ -105,19 +105,19 @@ namespace Shutters
                 case ShutterStatus.Half:
                     if (_newStatus == ShutterStatus.Closed)
                     {
-                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Closing}, should become {_newStatus} in {_halfUpDownTimeSeconds} | \r\n");
+                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Closing}, should become {_newStatus} in {_halfUpDownTimeSeconds} s \r\n");
                         Status = ShutterStatus.Closing;
                         _timer.Change((int)Math.Round(TimeSpan.FromSeconds( _halfUpDownTimeSeconds).TotalMilliseconds), Timeout.Infinite);
                     }
                     if (_newStatus == ShutterStatus.Open)
                     {
-                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Opening}, should become {_newStatus} in {_halfUpDownTimeSeconds} | \r\n");
+                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Opening}, should become {_newStatus} in {_halfUpDownTimeSeconds} s \r\n");
                         Status = ShutterStatus.Opening;
                         _timer.Change((int)Math.Round(TimeSpan.FromSeconds(_halfUpDownTimeSeconds).TotalMilliseconds), Timeout.Infinite);
                     }
                     break;
                 default:
-                    System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {_newStatus} | \r\n");
+                    System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {_newStatus} \r\n");
                     Status = _newStatus;
                     _newStatus = ShutterStatus.Unknown;
                     break;
