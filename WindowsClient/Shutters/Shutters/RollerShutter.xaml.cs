@@ -218,6 +218,7 @@ namespace Shutters
                     break;
                 case ShutterStatus.Unknown:
                 default:
+                    MessageBox.Show($"Status of shutter '{Shutter.Name}' is '{Shutter.Status}', not clear what to do upon a simple click. Use right-click menu to select a command.");
                     return;
             }
         }

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Shutters
 {
@@ -215,21 +216,28 @@ namespace Shutters
 
         public async Task publish(string payload, string topic)
         {
-            var utf8Payload = Encoding.UTF8.GetBytes(payload);
-            var message = new MqttApplicationMessageBuilder().WithTopic(topic.Trim()).WithPayload(utf8Payload).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce).WithRetainFlag().Build();
-
-            if (!this.mqttPublishClient.IsConnected)
+            try
             {
-                await ConnectPublisher();
-                await Task.Run(async () =>
+                var utf8Payload = Encoding.UTF8.GetBytes(payload);
+                var message = new MqttApplicationMessageBuilder().WithTopic(topic.Trim()).WithPayload(utf8Payload).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce).WithRetainFlag().Build();
+
+                if (!this.mqttPublishClient.IsConnected)
                 {
-                    while (!this.mqttPublishClient.IsConnected)
+                    await ConnectPublisher();
+                    await Task.Run(async () =>
                     {
-                        await Task.Delay(500);
-                    }
-                });
+                        while (!this.mqttPublishClient.IsConnected)
+                        {
+                            await Task.Delay(500);
+                        }
+                    });
+                }
+                var result = await this.mqttPublishClient.PublishAsync(message);
             }
-            var result = await this.mqttPublishClient.PublishAsync(message);
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         public async Task Subscribe(string topic)
