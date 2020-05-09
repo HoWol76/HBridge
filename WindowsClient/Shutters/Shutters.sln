@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.960
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shutters", "Shutters\Shutters.csproj", "{3B7819EA-1472-4198-8643-29EFB29F69CC}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ShutterControlSetup", "ShutterControlSetup\ShutterControlSetup.vdproj", "{FA8D19C8-0973-4E42-BE66-3490FC8930A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,8 @@ Global
 		{3B7819EA-1472-4198-8643-29EFB29F69CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B7819EA-1472-4198-8643-29EFB29F69CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B7819EA-1472-4198-8643-29EFB29F69CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA8D19C8-0973-4E42-BE66-3490FC8930A9}.Debug|Any CPU.ActiveCfg = Debug
+		{FA8D19C8-0973-4E42-BE66-3490FC8930A9}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
