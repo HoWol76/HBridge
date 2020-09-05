@@ -17,13 +17,16 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <local:RollerShutter Grid.Row="0" Grid.Column="0" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Living}"/>
-        <local:RollerShutter Grid.Row="0" Grid.Column="1" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Master}" />
-        <local:RollerShutter Grid.Row="1" Grid.Column="0" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Stairs}" />
-        <local:RollerShutter Grid.Row="1" Grid.Column="1" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Guest}"  />
-        <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="" FontSize="22" HorizontalAlignment="Stretch" Margin="10" Background="{Binding StatusBackground}"/>
-        <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Status}" FontSize="22" HorizontalAlignment="Center" Margin="10"/>
+        <local:RollerShutter Grid.Row="0" Grid.Column="0" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Master}"/>
+        <local:RollerShutter Grid.Row="0" Grid.Column="1" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Living}" />
+        <local:RollerShutter Grid.Row="0" Grid.Column="2" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Stairs}"  />
+        <local:RollerShutter Grid.Row="1" Grid.Column="0" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Sarah}" />
+        <local:RollerShutter Grid.Row="1" Grid.Column="1" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding SarahNorth}"  />
+        <local:RollerShutter Grid.Row="1" Grid.Column="2" Margin="30,10,30,10" MaxHeight="300" DataContext="{Binding Toby}" />
+        <TextBlock Grid.Row="2" Grid.ColumnSpan="3" Text="" FontSize="22" HorizontalAlignment="Stretch" Margin="10" Background="{Binding StatusBackground}"/>
+        <TextBlock Grid.Row="2" Grid.ColumnSpan="3" Text="{Binding Status}" FontSize="22" HorizontalAlignment="Center" Margin="10"/>
     </Grid>
 </Window>

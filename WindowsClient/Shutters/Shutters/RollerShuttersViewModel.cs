@@ -1,17 +1,7 @@
-﻿using MQTTnet;
-using MQTTnet.Client;
-using MQTTnet.Client.Connecting;
-using MQTTnet.Client.Disconnecting;
-using MQTTnet.Client.Options;
-using MQTTnet.Formatter;
-using MQTTnet.Protocol;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace Shutters
@@ -50,7 +40,9 @@ namespace Shutters
             Master = new RollerShutterViewModel("Schlafzimmer", mClient, mClient, "home/shutter/master", 7);
             Living = new RollerShutterViewModel("Wohnzimmer", mClient, mClient, "home/shutter/living", 11);
             Stairs = new RollerShutterViewModel("Treppe", mClient, mClient, "home/shutter/stairs", 9);
-            Guest = new RollerShutterViewModel("Sarah", mClient, mClient, "home/shutter/sarah", 7);
+            Sarah = new RollerShutterViewModel("Sarah", mClient, mClient, "home/shutter/sarah", 7);
+            SarahNorth = new RollerShutterViewModel("Sarah Nord", mClient, mClient, "home/shutter/sarah2", 6);
+            Toby = new RollerShutterViewModel("Tobi", mClient, mClient, "home/shutter/tobi", 7);
 
             _ = mClient.startClient();
         }
@@ -116,7 +108,11 @@ namespace Shutters
 
         public RollerShutterViewModel Stairs { get; private set; }
 
-        public RollerShutterViewModel Guest { get; private set; }
+        public RollerShutterViewModel Sarah { get; private set; }
+
+        public RollerShutterViewModel SarahNorth { get; private set; }
+
+        public RollerShutterViewModel Toby { get; private set; }
 
         public void Dispose()
         {

@@ -12,6 +12,8 @@ namespace Shutters
         Task Unsubscribe(string topic);
 
         event MessageEventHandler MessageReceived;
+
+        event StatusEventHandler StatusChanged;
     }
 
     public class MessageEventArgs: EventArgs

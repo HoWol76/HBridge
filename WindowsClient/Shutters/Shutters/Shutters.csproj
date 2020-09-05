@@ -87,6 +87,8 @@
     <Compile Include="BooleanToDoubleConverter.cs" />
     <Compile Include="IMqttPublisher.cs" />
     <Compile Include="IMqttSubscriber.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="MQTTExtensions.cs" />
     <Compile Include="RollerShutter.xaml.cs">
       <DependentUpon>RollerShutter.xaml</DependentUpon>
     </Compile>

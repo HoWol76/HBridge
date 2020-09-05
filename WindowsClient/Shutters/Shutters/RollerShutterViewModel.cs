@@ -15,17 +15,18 @@ namespace Shutters
         public event PropertyChangingEventHandler PropertyChanging;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void OnPropertyChanging([CallerMemberName]string propertyName = "")
+        private void OnPropertyChanging([CallerMemberName]string propertyName ="")
         {
             PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
-        private void OnPropertyChanged([CallerMemberName]string propertyName = "")
+        private void OnPropertyChanged([CallerMemberName]string propertyName ="")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private IMqttPublisher _publisher;
+        private IMqttSubscriber _subscriber;
         private string _topic;
         private int _halfUpDownTimeSeconds;
         private Timer _timer;
@@ -35,18 +36,33 @@ namespace Shutters
         {
             Name = name;
             _publisher = publisher;
+            _subscriber = subscriber;
             _topic = topic;
             _halfUpDownTimeSeconds = halfUpDownTimeSeconds;
             _timer = new Timer((state) => 
             {
-                System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Timer changing status from {Status} to {_newStatus} | \r\n");
+                Logger.Log($"{Name} Timer changing status from {Status} to {_newStatus}");
                 Status = _newStatus;
                 _newStatus = ShutterStatus.Unknown;
                 _timer.Change(Timeout.Infinite, Timeout.Infinite);
             }, null, Timeout.Infinite, Timeout.Infinite);
 
-            subscriber.MessageReceived += MessageReceived;
-            subscriber.Subscribe(SubscribeTopic);
+            _subscriber.MessageReceived += MessageReceived;
+            _subscriber.StatusChanged += SubscriberStatusChanged;
+        }
+
+        private void SubscriberStatusChanged(object sender, StatusEventArgs e)
+        {
+            if (e.Status =="Connected")
+            {
+                Logger.Log($"{Name} connected");
+                _subscriber.Subscribe(SubscribeTopic);
+            }
+            else
+            {
+                Logger.Log($"{Name} disconnected");
+                _subscriber.Unsubscribe(SubscribeTopic);
+            }
         }
 
         private void MessageReceived(object sender, MessageEventArgs e)
@@ -58,26 +74,26 @@ namespace Shutters
 
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            if (e.Payload == "STOPPED")
+            if (e.Payload =="STOPPED")
             {
                 IsDisabled = true;
                 if (_newStatus != ShutterStatus.Unknown)
                 {
                     // we were just opening or closing
-                    System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Stopped and disabled, changing status from {Status} to {ShutterStatus.Half} | \r\n");
+                    Logger.Log($"{Name} Stopped and disabled, changing status from {Status} to {ShutterStatus.Half}");
                     Status = ShutterStatus.Half;
                     _newStatus = ShutterStatus.Unknown;
                 }
                 if (Status == ShutterStatus.Unknown)
                 {
-                    System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Stopped and disabled, changing status from {Status} to {ShutterStatus.Half} | \r\n");
+                    Logger.Log($"{Name} Stopped and disabled, changing status from {Status} to {ShutterStatus.Half}");
                     Status = ShutterStatus.Half;
                 }
                 return;
             }
             if (IsDisabled)
             {
-                System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} reenabled | \r\n");
+                Logger.Log($"{Name} reenabled");
             }
             IsDisabled = false;
 
@@ -88,7 +104,7 @@ namespace Shutters
                 case ShutterStatus.Opening:
                     if (_newStatus == ShutterStatus.Closed)
                     {
-                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Closing}, should become {_newStatus} in {2 * _halfUpDownTimeSeconds} s \r\n");
+                        Logger.Log($"{Name} Changing status from {Status} to {ShutterStatus.Closing}, should become {_newStatus} in {2 * _halfUpDownTimeSeconds} s");
                         Status = ShutterStatus.Closing;
                         _timer.Change((int)Math.Round(TimeSpan.FromSeconds(2 * _halfUpDownTimeSeconds).TotalMilliseconds), Timeout.Infinite);
                     }
@@ -97,7 +113,7 @@ namespace Shutters
                 case ShutterStatus.Closing:
                     if (_newStatus == ShutterStatus.Open)
                     {
-                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Opening}, should become {_newStatus} in {2 * _halfUpDownTimeSeconds} s \r\n");
+                        Logger.Log($"{Name} Changing status from {Status} to {ShutterStatus.Opening}, should become {_newStatus} in {2 * _halfUpDownTimeSeconds} s");
                         Status = ShutterStatus.Opening;
                         _timer.Change((int)Math.Round(TimeSpan.FromSeconds(2 * _halfUpDownTimeSeconds).TotalMilliseconds), Timeout.Infinite);
                     }
@@ -105,19 +121,19 @@ namespace Shutters
                 case ShutterStatus.Half:
                     if (_newStatus == ShutterStatus.Closed)
                     {
-                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Closing}, should become {_newStatus} in {_halfUpDownTimeSeconds} s \r\n");
+                        Logger.Log($"{Name} Changing status from {Status} to {ShutterStatus.Closing}, should become {_newStatus} in {_halfUpDownTimeSeconds} s");
                         Status = ShutterStatus.Closing;
                         _timer.Change((int)Math.Round(TimeSpan.FromSeconds( _halfUpDownTimeSeconds).TotalMilliseconds), Timeout.Infinite);
                     }
                     if (_newStatus == ShutterStatus.Open)
                     {
-                        System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {ShutterStatus.Opening}, should become {_newStatus} in {_halfUpDownTimeSeconds} s \r\n");
+                        Logger.Log($"{Name} Changing status from {Status} to {ShutterStatus.Opening}, should become {_newStatus} in {_halfUpDownTimeSeconds} s");
                         Status = ShutterStatus.Opening;
                         _timer.Change((int)Math.Round(TimeSpan.FromSeconds(_halfUpDownTimeSeconds).TotalMilliseconds), Timeout.Infinite);
                     }
                     break;
                 default:
-                    System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} {Name} Changing status from {Status} to {_newStatus} \r\n");
+                    Logger.Log($"{Name} Changing status from {Status} to {_newStatus}");
                     Status = _newStatus;
                     _newStatus = ShutterStatus.Unknown;
                     break;
@@ -181,10 +197,10 @@ namespace Shutters
         {
             switch (payload)
             {
-                case "OPENED":
-                case "OPEN":
+                case"OPENED":
+                case"OPEN":
                     return ShutterStatus.Open;
-                case "CLOSED":
+                case"CLOSED":
                     return ShutterStatus.Closed;
                 default:
                     return ShutterStatus.Unknown;

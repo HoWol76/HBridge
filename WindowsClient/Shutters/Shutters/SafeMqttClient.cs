@@ -31,7 +31,8 @@ namespace Shutters
         public SafeMqttClient(string brokerIP = "192.168.1.105", int brokerPort = 1883)
         {
             _brokerIP = brokerIP;
-            brokerPort = _brokerPort;
+            _brokerPort = brokerPort;
+            Logger.LogVerbose($"Connecting to MQTT server at {_brokerIP}:{_brokerPort}");
         }
 
         private string SubscribeClientId { get; set; } = Guid.NewGuid().ToString();
@@ -45,7 +46,7 @@ namespace Shutters
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debugger.Log(1, "", $"subscribe connect exception: {ex.ToString()}\r\n");
+                Logger.LogVerbose($"subscribe connect exception: {ex}");
                 StatusChanged?.Invoke(this, $"subscribe connect exception: {ex.Message}");
             }
             try
@@ -54,7 +55,7 @@ namespace Shutters
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debugger.Log(1, "", $"publish connect exception: {ex.ToString()}\r\n");
+                Logger.LogVerbose($"publish connect exception: {ex}");
                 StatusChanged?.Invoke(this, $"publish connect exception: {ex.Message}");
             }
         }
@@ -145,12 +146,13 @@ namespace Shutters
             //};
 
             var result = await this.mqttPublishClient.ConnectAsync(options);
+            Logger.LogVerbose($"Connecting MQTT Publisher: {result.GetString()}");
         }
 
         private void OnSubscriberConnected(MqttClientConnectedEventArgs x)
         {
+            Logger.LogVerbose($"Subscriber Connected with result {x.GetString()}");
             var resultCode = x.AuthenticateResult.ResultCode;
-            System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} | Subscriber Connected with result code {resultCode}\r\n");
             if (resultCode != MqttClientConnectResultCode.Success)
             {
                 StatusChanged?.Invoke(this, $"Subscriber problem: {resultCode}");
@@ -177,8 +179,8 @@ namespace Shutters
         {
             var resultCode = x.AuthenticateResult?.ResultCode ?? 0;
             var reason = x.AuthenticateResult?.ReasonString;
-            StatusChanged?.Invoke(this, $"Disconnected{(string.IsNullOrWhiteSpace(reason) ? "" : $" ({reason})")}");
-            System.Diagnostics.Debugger.Log(1, "", $"Timestamp: {DateTime.Now:O} | Subscriber Disonnected{(string.IsNullOrWhiteSpace(reason) ? "" : $" (Reason: {reason})")}{(x.Exception == null ? "" : $" : {x.Exception.ToString()}")}\r\n");
+            StatusChanged?.Invoke(this, $"Disconnected: {(string.IsNullOrWhiteSpace(reason) ? "" : $" ({reason})")}");
+            Logger.LogVerbose($"Subscriber Disonnected: {x.GetString()}");
             Task.Run(async () =>
             {
                 await Task.Delay(1000);
@@ -191,35 +193,38 @@ namespace Shutters
             var topic = x.ApplicationMessage.Topic;
             var payload = x.ApplicationMessage.ConvertPayloadToString();
 
-            var item = $"Timestamp: {DateTime.Now:O} | Topic: {topic} | Payload: {payload} | QoS: {x.ApplicationMessage.QualityOfServiceLevel}";
-            System.Diagnostics.Debugger.Log(1, "", $"{item}\r\n");
+            Logger.LogVerbose($"Subscriber message received: {x.GetString()}");
 
             MessageReceived?.Invoke(this, new MessageEventArgs() { Payload = payload, Topic = topic });
         }
 
         private void HandlePublishAnswer(MqttApplicationMessageReceivedEventArgs eventArgs)
         {
-            var item = $"Timestamp: {DateTime.Now:O} | Topic: {eventArgs.ApplicationMessage.Topic} | Payload: {eventArgs.ApplicationMessage.ConvertPayloadToString()} | QoS: {eventArgs.ApplicationMessage.QualityOfServiceLevel}";
+            Logger.LogVerbose($"Publish answer received: {eventArgs.GetString()}");
         }
 
         private void OnPublisherConnected(MqttClientConnectedEventArgs x)
         {
-            var item = $"Timestamp: {DateTime.Now:O} | Publisher Connected";
-            System.Diagnostics.Debugger.Log(1, "", $"{item}\r\n");
+            Logger.LogVerbose($"Publisher Connected : {x.GetString()}");
         }
 
         private void OnPublisherDisconnected(MqttClientDisconnectedEventArgs x)
         {
-            var item = $"Timestamp: {DateTime.Now:O} | Publisher Disonnected";
-            System.Diagnostics.Debugger.Log(1, "", $"{item}\r\n");
+            Logger.LogVerbose($"Publisher Disonnected : {x.GetString()}");
         }
 
         public async Task publish(string payload, string topic)
         {
             try
             {
+                Logger.LogVerbose($"Publishing topic {topic}, payload {payload}");
                 var utf8Payload = Encoding.UTF8.GetBytes(payload);
-                var message = new MqttApplicationMessageBuilder().WithTopic(topic.Trim()).WithPayload(utf8Payload).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce).WithRetainFlag().Build();
+                var message = new MqttApplicationMessageBuilder()
+                    .WithTopic(topic.Trim())
+                    .WithPayload(utf8Payload)
+                    .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
+                    .WithRetainFlag()
+                    .Build();
 
                 if (!this.mqttPublishClient.IsConnected)
                 {
@@ -236,6 +241,7 @@ namespace Shutters
             }
             catch(Exception ex)
             {
+                Logger.LogVerbose($"Publishing topic {topic}, payload {payload}: {ex}");
                 MessageBox.Show(ex.ToString());
             }
         }
