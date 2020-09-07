@@ -19,11 +19,11 @@
             </Grid.RowDefinitions>
                 <Image Source="Resources/rollerShutterFrame.png" Height="600" Opacity="{Binding IsDisabled, Converter={StaticResource BooleanToDoubleConverter}, ConverterParameter='0,3|1'}"/>
                 <Image Source="Resources/rollerShutterRolling.png" Height="500" x:Name="shutterImage"  Opacity="{Binding IsDisabled, Converter={StaticResource BooleanToDoubleConverter}, ConverterParameter='0.3|1'}">
-                <Image.Clip>
-                    <RectangleGeometry x:Name="wau"  Rect="0,120,500,320"/>
-                </Image.Clip>
-            </Image>
-            <TextBlock Grid.Row="1" FontSize="100" HorizontalAlignment="Center" Text="{Binding Name}"/>
+                    <Image.Clip>
+                        <RectangleGeometry x:Name="wau"  Rect="0,120,500,320"/>
+                    </Image.Clip>
+                </Image>
+                <TextBlock Grid.Row="1" FontSize="100" HorizontalAlignment="Center" Text="{Binding Name}"/>
         </Grid>
     </Viewbox>
     </Button>

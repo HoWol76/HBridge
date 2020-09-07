@@ -37,6 +37,7 @@ namespace Shutters
             {
                 return;
             }
+            UpdateAnimation(ShutterStatus.Unknown, Shutter.Status);
             Shutter.PropertyChanging += Shutter_PropertyChanging;
             Shutter.PropertyChanged += Shutter_PropertyChanged;
         }
@@ -94,6 +95,7 @@ namespace Shutters
 
         private void UpdateAnimation(ShutterStatus oldStatus, ShutterStatus newStatus)
         {
+            Logger.LogVerbose($"{Shutter.Name} updating display: oldStatus {oldStatus}, newStatus {newStatus}");
             if (oldStatus == newStatus)
             {
                 return;
