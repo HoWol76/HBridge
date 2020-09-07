@@ -103,7 +103,9 @@ class Mqtt_Shutter():
             'living' : Shutter('living', (0, 1), (0, 2), (0, 3), (0, 4), self.client, 11),
             'stairs' : Shutter('stairs', (1, 1), (1, 2), (1, 3), (1, 4), self.client, 9),
             'master' : Shutter('master', (3, 1), (3, 2), (3, 3), (3, 4), self.client, 7),
-            'sarah'  : Shutter('sarah', (1, 6), (1, 5), (3, 5), (3, 6), self.client, 7)
+            'sarah'  : Shutter('sarah', (1, 6), (1, 5), (3, 5), (3, 6), self.client, 7),
+            'sarah2' : Shutter('sarah2', (2, 1), (2, 2), (2, 3), (2, 4), self.client, 6),
+            'tobi'   : Shutter('tobi', (1, 7), (2, 6), (2, 7), (2, 5), self.client, 7)
             }
         connected = False
         while not connected:
