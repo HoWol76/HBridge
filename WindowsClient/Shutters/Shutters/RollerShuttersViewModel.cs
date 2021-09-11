@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace Shutters
@@ -15,6 +17,7 @@ namespace Shutters
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private TaskScheduler m_taskScheduler;
         private SafeMqttClient mClient;
 
         private static string nucIP = "192.168.1.105";
@@ -33,6 +36,7 @@ namespace Shutters
 
         public RollerShuttersViewModel()
         {
+            m_taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             mClient = new SafeMqttClient(nucIP, port);
             mClient.StatusChanged += mqttStatusChanged;
             mClient.MessageReceived += mqttMessageReceived;
@@ -51,7 +55,27 @@ namespace Shutters
         {
             if (e.Status == "Connected")
             {
-                _ = mClient.Subscribe(TOPIC_STATUS);
+                var task = mClient.Subscribe(TOPIC_STATUS);
+                task.ContinueWith(t =>
+                {
+                    Status = "Error";
+                    StatusBackground = Brushes.Red;
+                    Logger.Log($"Exception subscribing to status: {t.Exception}");
+                },
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted,
+                m_taskScheduler);
+                task.ContinueWith(t =>
+                {
+                    if (_status == "Connecting")
+                    {
+                        Status = "WAITING FOR SHUTTERS";
+                        StatusBackground = Brushes.White;
+                    }
+                },
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnRanToCompletion,
+                m_taskScheduler);
             }
         }
 
@@ -62,6 +86,10 @@ namespace Shutters
                 return;
             }
             Status = e.Payload;
+            if (e.Payload == null)
+            {
+                StatusBackground = Brushes.LightGray;
+            }
             if (_statusToBrush.ContainsKey(e.Payload))
             {
                 StatusBackground = _statusToBrush[e.Payload];

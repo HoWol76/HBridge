@@ -5,5 +5,6 @@
     Closed,
     Half,
     Opening,
-    Closing
+    Closing,
+    Error
 }

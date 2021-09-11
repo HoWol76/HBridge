@@ -23,7 +23,7 @@
                         <RectangleGeometry x:Name="wau"  Rect="0,120,500,320"/>
                     </Image.Clip>
                 </Image>
-                <TextBlock Grid.Row="1" FontSize="100" HorizontalAlignment="Center" Text="{Binding Name}"/>
+                <TextBlock Grid.Row="1" FontSize="100" HorizontalAlignment="Center" Text="{Binding Name}" Foreground="{Binding TextBrush}"/>
         </Grid>
     </Viewbox>
     </Button>

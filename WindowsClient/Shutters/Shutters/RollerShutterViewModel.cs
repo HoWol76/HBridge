@@ -53,15 +53,22 @@ namespace Shutters
 
         private void SubscriberStatusChanged(object sender, StatusEventArgs e)
         {
-            if (e.Status =="Connected")
+            try
             {
-                Logger.Log($"{Name} connected");
-                _subscriber.Subscribe(SubscribeTopic);
+                if (e.Status == "Connected")
+                {
+                    Logger.Log($"{Name} connected");
+                    _subscriber.Subscribe(SubscribeTopic);
+                }
+                else
+                {
+                    Logger.Log($"{Name} disconnected");
+                    _subscriber.Unsubscribe(SubscribeTopic);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                Logger.Log($"{Name} disconnected");
-                _subscriber.Unsubscribe(SubscribeTopic);
+                Status = ShutterStatus.Error;
             }
         }
 
@@ -170,8 +177,11 @@ namespace Shutters
                 }
                 _status = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(TextBrush));
             }
         }
+
+        public Brush TextBrush => _status == ShutterStatus.Error ? Brushes.Red : _status == ShutterStatus.Unknown ? Brushes.LightGray : IsDisabled ? Brushes.Gray : Brushes.Black;
 
         public async Task Open()
         {
